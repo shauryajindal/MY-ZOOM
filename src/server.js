@@ -52,12 +52,13 @@ io.on("connection", (socket) => {
       offer
     });
 
+  });
     socket.on("webrtc-answer", ({ answer }) => {
-      console.log("answer Received", answer),
+      console.log("ANSWER RECEIVED FROM:", socket.id);
+      console.log("SENDING ANSWER TO OTHER SOCKETS");
 
         socket.broadcast.emit("webrtc-answer", {answer})
     })
-  });
 
   socket.on("webrtc-ice-candidate", ({ candidate }) => {
     console.log("Received ICE candidate:", candidate);
