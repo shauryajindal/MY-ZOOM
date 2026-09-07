@@ -30,7 +30,8 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.userId} joined the meeting ${roomId}`)
 
     socket.to(roomId).emit("user-joined", {
-      userId:socket.userId
+      userId: socket.userId,
+      socketId:socket.id
     })
   }
     )
@@ -45,25 +46,30 @@ io.on("connection", (socket) => {
         });
   })
 
-  socket.on("webrtc-offer", ({ offer }) => {
-    console.log("Received WebRTC offer:", offer);
+  socket.on("webrtc-offer", ({ offer,targetSocketId }) => {
+    console.log("Received WebRTC offer from:", socket.id);
+    console.log("Sending offer to:", targetSocketId);
+    
   
-    socket.broadcast.emit("webrtc-offer", {
-      offer
+    io.to(targetSocketId).emit("webrtc-offer", {
+      offer,
+      fromSocketId:socket.id
     });
 
   });
-    socket.on("webrtc-answer", ({ answer }) => {
-      console.log("ANSWER RECEIVED FROM:", socket.id);
-      console.log("SENDING ANSWER TO OTHER SOCKETS");
-
-        socket.broadcast.emit("webrtc-answer", {answer})
+    socket.on("webrtc-answer", ({ answer,targetSocketId }) => {
+      console.log("Received answer from:", socket.id);
+       console.log("Sending answer to:", targetSocketId);
+   
+       io.to(targetSocketId).emit("webrtc-answer", {
+           answer,
+       });
     })
 
-  socket.on("webrtc-ice-candidate", ({ candidate }) => {
+  socket.on("webrtc-ice-candidate", ({ candidate,targetSocketId }) => {
     console.log("Received ICE candidate:", candidate);
   
-    socket.broadcast.emit("webrtc-ice-candidate", {
+    io.to(targetSocketId).emit("webrtc-ice-candidate", {
       candidate
     });
   });
